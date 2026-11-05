@@ -16,7 +16,7 @@ diff --git a/dm/host/haptics_apple.m b/dm/host/haptics_apple.m
 index 5a7cd7482f6ed23e5ca8256b69cb2c64db337af7..0000000000000000000000000000000000000000 100644
 --- a/dm/host/haptics_apple.m
 +++ b/dm/host/haptics_apple.m
-@@ -39,4 +39,7 @@
+@@ -39,3 +39,6 @@
  static NSMutableArray<DmRumbleChannel *> *channels[DM_PLAYERS];
  static GCController *controllers[DM_PLAYERS];
  static int rumble_output = -1;   // player one: -1 automatic, 0 controller only, 1 phone only
