@@ -29,14 +29,13 @@ diff --git a/dm/host/haptics_apple.m b/dm/host/haptics_apple.m
 index 18951a1..0000000 100644
 --- a/dm/host/haptics_apple.m
 +++ b/dm/host/haptics_apple.m
-@@ -13,5 +13,6 @@
+@@ -13,4 +13,5 @@
  #endif
  #include <math.h>
  #include <pthread.h>
 +#include <string.h>
  #include <time.h>
  
- @interface DmRumbleChannel : NSObject
 @@ -38,6 +39,7 @@ static dispatch_queue_t queue;
  static NSMutableArray<DmRumbleChannel *> *channels[DM_PLAYERS];
  static GCController *controllers[DM_PLAYERS];
@@ -44,7 +43,7 @@ index 18951a1..0000000 100644
  #if TARGET_OS_IPHONE
  static BOOL phoneSupported;
  #endif
-@@ -331,5 +333,5 @@ static void configure(int p, GCController *controller) {
+@@ -331,4 +333,4 @@ static void configure(int p, GCController *controller) {
      if (controller && ds4_route(p, controller)) { dm_haptics_route(p, 1); return; }   // the report first, as SDL drives it
  #endif
 -    if (controller) {
