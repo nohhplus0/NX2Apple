@@ -11,7 +11,7 @@ Issue: LNPANDY/NX2Apple#214
  1 file changed, 17 insertions(+)
 
 diff --git a/dm/host/hle_fs.c b/dm/host/hle_fs.c
-index a90fb7a3204833a8f8c6fc6cd74f610a696d5e4b..43090754f5bf72cf188774d37540bc41ba6829b8 100644
+index 114e39964587feae8a2497c8b2aa7a2cd6c60e03..d174cb1fc2470eb8ffe7d128d5a6c7db4292873e 100644
 --- a/dm/host/hle_fs.c
 +++ b/dm/host/hle_fs.c
 @@ -1040,3 +1040,20 @@
