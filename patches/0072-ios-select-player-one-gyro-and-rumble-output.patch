@@ -57,8 +57,6 @@ index 18951a1..0000000 100644
 +    x = fminf(1, powf(x, rumble_curve) * gain);
 +    return x <= rumble_min ? 0 : (x - rumble_min) / (1 - rumble_min);
 +}
-
-
 @@ -161,2 +165,1 @@
  - (void)apply:(dm_haptic_level)level {
 -    if ([self.target hasPrefix:@"controller"]) level.intensity = controller_level(level.intensity);
