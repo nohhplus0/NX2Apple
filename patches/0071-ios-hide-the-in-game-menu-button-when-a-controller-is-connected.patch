@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: nohhplus0 <nohhplus0@users.noreply.github.com>
+Date: Thu, 5 Nov 2026 16:00:00 +0900
+Subject: [PATCH] ios: hide the in-game menu button with a physical controller
+
+Upstream-Status: fork-only
+Reason: Keep the iOS game view free of touch UI while a physical controller is connected, including the gear menu button.
+Issue: user-requested customization (no public issue)
+
+---
+ dm/ios/Sources/DmGamepad.m | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/dm/ios/Sources/DmGamepad.m b/dm/ios/Sources/DmGamepad.m
+index 0000000..1111111 100644
+--- a/dm/ios/Sources/DmGamepad.m
++++ b/dm/ios/Sources/DmGamepad.m
+@@ -477,7 +477,7 @@
+-    dispatch_async(dispatch_get_main_queue(), ^{ self->_padOff = any; self->_controls.hidden = any; [self reset]; });   // the touch gamepad hides while any controller is in use
++    dispatch_async(dispatch_get_main_queue(), ^{ self->_padOff = any; self->_controls.hidden = any; self->_menu.hidden = any; [self reset]; });   // the touch gamepad and menu button hide while any controller is in use
+ }
+ @end
