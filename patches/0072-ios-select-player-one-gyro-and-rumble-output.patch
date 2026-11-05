@@ -69,4 +69,4 @@ index 18951a1..0000000 100644
 +        else if (e && !strcmp(e, "phone")) rumble_output = 1;
 +        else rumble_output = -1;
          e = getenv("DM_RUMBLE");
-        dm_haptics_init(apply, !e || atoi(e) != 0);
+         dm_haptics_init(apply, !e || atoi(e) != 0);
