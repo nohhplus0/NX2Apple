@@ -10,8 +10,8 @@ Issue: local (GitHub Issues are disabled for this repository)
 
 ---
  dm/games/settings.tsv  | 2 ++
- dm/host/haptics_apple.m | 11 +++++++++--
- 2 files changed, 11 insertions(+), 2 deletions(-)
+ dm/host/haptics_apple.m | 10 +++++++++-
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/dm/games/settings.tsv b/dm/games/settings.tsv
 index 0057d50..0000000 100644
@@ -46,7 +46,6 @@ index 18951a1..0000000 100644
 @@ -331,5 +333,6 @@ static void configure(int p, GCController *controller) {
      if (controller && ds4_route(p, controller)) { dm_haptics_route(p, 1); return; }   // the report first, as SDL drives it
  #endif
-+    fprintf(stderr, "[RED] haptics: configure player=%d controller=%s output=%d\n", p + 1, controller ? "connected" : "none", rumble_output);
 -    if (controller) {
 +    if (controller && !(p == 0 && rumble_output == 1)) {
          GCDeviceHaptics *h = controller.haptics;
@@ -58,6 +57,10 @@ index 18951a1..0000000 100644
 +    else if (!p && phoneSupported && (rumble_output == 1 || (!controller && rumble_output == -1))) {
          // Do not initialize the phone's engine before the game's audio session is active.
          add_engine(p, -1, @"phone", ^CHHapticEngine *(NSError **e) { return [[CHHapticEngine alloc] initWithAudioSession:AVAudioSession.sharedInstance error:e]; });
+@@ -400,3 +402,3 @@ void dm_haptics_apple_init(void) {
+         const char *e = getenv("DM_RUMBLE_GAIN");
+-        if (e) { float v = strtof(e, NULL); if (isfinite(v)) gain = fmaxf(0, fminf(3, v)); }
++        if (e) { float v = strtof(e, NULL); if (isfinite(v)) gain = fmaxf(0, fminf(10, v)); }
 @@ -401,4 +403,8 @@ void dm_haptics_apple_init(void) {
          e = getenv("DM_RUMBLE_MIN");
          if (e) { float v = strtof(e, NULL); if (isfinite(v)) rumble_min = fmaxf(0, fminf(0.9f, v)); }
