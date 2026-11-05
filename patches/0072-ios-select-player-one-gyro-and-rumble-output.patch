@@ -9,21 +9,22 @@ Reason: Let player one explicitly use the phone or its physical controller for m
 Issue: local (GitHub Issues are disabled for this repository)
 
 ---
- dm/games/settings.tsv  | 3 ++-
- dm/host/haptics_apple.m | 11 ++++++++---
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ dm/games/settings.tsv | 5 ++++-
+ dm/host/haptics_apple.m | 40 +++++++++++++++++++++++++---------------
+ 2 files changed, 29 insertions(+), 16 deletions(-)
 
 diff --git a/dm/games/settings.tsv b/dm/games/settings.tsv
 index 0057d50..0000000 100644
 --- a/dm/games/settings.tsv
 +++ b/dm/games/settings.tsv
-@@ -26,5 +26,7 @@ DM_SHOW_FPS	toggle	-	build:DM_SHOW_FPS	platform:ios	Game	Frame-rate counter
+@@ -26,5 +26,8 @@ DM_SHOW_FPS	toggle	-	build:DM_SHOW_FPS	platform:ios	Game	Frame-rate counter
  DM_TOUCH_HAPTICS	toggle	-	1	platform:ios	Controls	Touch feedback
 +DM_PHONE_MOTION	choice	auto=Automatic,1=Phone,0=Controller	auto	platform:ios	Controls	Gyro input
  DM_RUMBLE	toggle	-	1	always	Controls	Game rumble		level=basic
 +DM_RUMBLE_OUTPUT	choice	auto=Automatic,controller=Controller,phone=Phone	auto	platform:ios	Controls	Vibration output
 -DM_RUMBLE_GAIN	range	0:3:0.1	1.0	always	Controls	Rumble strength		needs=DM_RUMBLE=1
-+DM_RUMBLE_GAIN	range	0:10:0.1	2.0	always	Controls	Rumble strength		needs=DM_RUMBLE=1
++DM_RUMBLE_GAIN	range	0.1:10:0.1	1.0	always	Controls	Rumble strength		needs=DM_RUMBLE=1
++DM_RUMBLE_CURVE	range	0.1:2:0.1	1.0	always	Controls	Rumble curve		needs=DM_RUMBLE=1
  DM_RUMBLE_MIN	range	0:0.9:0.05	0	always	Controls	Rumble cutoff
  DM_PRESENT_SNAP	toggle	-	DM_GAME_PRESENT_SNAP	gfxapi:nvn	Performance	Frame buffering	Up to one frame more display latency.
 diff --git a/dm/host/haptics_apple.m b/dm/host/haptics_apple.m
@@ -44,25 +45,58 @@ index 18951a1..0000000 100644
  #if TARGET_OS_IPHONE
  static BOOL phoneSupported;
  #endif
-@@ -331,5 +333,5 @@ static void configure(int p, GCController *controller) {
+@@ -67,1 +69,1 @@
+-// DM_RUMBLE_MIN (0 to 0.9, default 0): controller levels below it stay silent and the rest is stretched over the full range. On a Joy-Con's
++// DM_RUMBLE_MIN (0 to 0.9, default 0): phone and controller levels below it stay silent and the rest is stretched over the full range. On a Joy-Con's
+@@ -71,5 +73,7 @@
+-static float rumble_min;
+-static float controller_level(float x) {
+-    x = isfinite(x) ? fmaxf(0, fminf(1, x)) : 0;
+-    return x <= rumble_min ? 0 : (x - rumble_min) / (1 - rumble_min);
+-}
++static float rumble_min;
++static float rumble_curve = 1;
++static float rumble_level(float x) {
++    x = isfinite(x) ? fmaxf(0, fminf(1, x)) : 0;
++    x = fminf(1, powf(x, rumble_curve) * gain);
++    return x <= rumble_min ? 0 : (x - rumble_min) / (1 - rumble_min);
++}
+@@ -161,2 +165,1 @@
+-- (void)apply:(dm_haptic_level)level {
+-    if ([self.target hasPrefix:@"controller"]) level.intensity = controller_level(level.intensity);
++- (void)apply:(dm_haptic_level)level {
+@@ -256,2 +259,2 @@
+-    o->motor[0] = (uint8_t)lrintf(controller_level((0.85f * l->amplitude_low + 0.15f * r->amplitude_low) * gain) * 255);
+-    o->motor[1] = (uint8_t)lrintf(controller_level((0.15f * l->amplitude_high + 0.85f * r->amplitude_high) * gain) * 255);
++    o->motor[0] = (uint8_t)lrintf(rumble_level(0.85f * l->amplitude_low + 0.15f * r->amplitude_low) * 255);
++    o->motor[1] = (uint8_t)lrintf(rumble_level(0.15f * l->amplitude_high + 0.85f * r->amplitude_high) * 255);
+@@ -313,2 +316,3 @@
+-            dm_haptic_level level = m >= 0 ? dm_haptics_level(&s.motor[m], 1, gain) : dm_haptics_level(s.motor, 2, gain);
+-            [out[i] apply:level];
++            dm_haptic_level level = m >= 0 ? dm_haptics_level(&s.motor[m], 1, 1) : dm_haptics_level(s.motor, 2, 1);
++            level.intensity = rumble_level(level.intensity);
++            [out[i] apply:level];
+@@ -331,5 +335,5 @@ static void configure(int p, GCController *controller) {
      if (controller && ds4_route(p, controller)) { dm_haptics_route(p, 1); return; }   // the report first, as SDL drives it
  #endif
 -    if (controller) {
 +    if (controller && !(p == 0 && rumble_output == 1)) {
          GCDeviceHaptics *h = controller.haptics;
          NSSet *localities = h.supportedLocalities;
-@@ -365,5 +367,5 @@ static void configure(int p, GCController *controller) {
+@@ -365,5 +369,5 @@ static void configure(int p, GCController *controller) {
      }
  #if TARGET_OS_IPHONE
 -    else if (!p && phoneSupported) {
 +    else if (!p && phoneSupported && (rumble_output == 1 || (!controller && rumble_output == -1))) {
          // Do not initialize the phone's engine before the game's audio session is active.
          add_engine(p, -1, @"phone", ^CHHapticEngine *(NSError **e) { return [[CHHapticEngine alloc] initWithAudioSession:AVAudioSession.sharedInstance error:e]; });
-@@ -400,7 +402,11 @@ void dm_haptics_apple_init(void) {
+@@ -400,8 +404,14 @@ void dm_haptics_apple_init(void) {
          dispatch_queue_set_specific(queue, &queue, &queue, NULL);
          const char *e = getenv("DM_RUMBLE_GAIN");
 -        if (e) { float v = strtof(e, NULL); if (isfinite(v)) gain = fmaxf(0, fminf(3, v)); }
-+        if (e) { float v = strtof(e, NULL); if (isfinite(v)) gain = fmaxf(0, fminf(10, v)); }
++        if (e) { float v = strtof(e, NULL); if (isfinite(v)) gain = fmaxf(0.1f, fminf(10, v)); }
++        e = getenv("DM_RUMBLE_CURVE");
++        if (e) { float v = strtof(e, NULL); if (isfinite(v)) rumble_curve = fmaxf(0.1f, fminf(2, v)); }
          e = getenv("DM_RUMBLE_MIN");
          if (e) { float v = strtof(e, NULL); if (isfinite(v)) rumble_min = fmaxf(0, fminf(0.9f, v)); }
 +        e = getenv("DM_RUMBLE_OUTPUT");
