@@ -10,8 +10,8 @@ Issue: local (GitHub Issues are disabled for this repository)
 
 ---
  dm/games/settings.tsv | 5 ++++-
- dm/host/haptics_apple.m | 40 +++++++++++++++++++++++++---------------
- 2 files changed, 29 insertions(+), 16 deletions(-)
+ dm/host/haptics_apple.m | 36 +++++++++++++++++++++++-------------
+ 2 files changed, 27 insertions(+), 14 deletions(-)
 
 diff --git a/dm/games/settings.tsv b/dm/games/settings.tsv
 index 0057d50..0000000 100644
@@ -45,9 +45,6 @@ index 18951a1..0000000 100644
  #if TARGET_OS_IPHONE
  static BOOL phoneSupported;
  #endif
-@@ -67,1 +69,1 @@
--// DM_RUMBLE_MIN (0 to 0.9, default 0): controller levels below it stay silent and the rest is stretched over the full range. On a Joy-Con's
-+// DM_RUMBLE_MIN (0 to 0.9, default 0): phone and controller levels below it stay silent and the rest is stretched over the full range. On a Joy-Con's
 @@ -71,5 +73,7 @@
 -static float rumble_min;
 -static float controller_level(float x) {
