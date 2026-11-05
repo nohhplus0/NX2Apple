@@ -10,8 +10,8 @@ Issue: local (GitHub Issues are disabled for this repository)
 
 ---
  dm/games/settings.tsv  | 2 ++
- dm/host/haptics_apple.m | 12 ++++++++++--
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ dm/host/haptics_apple.m | 11 +++++++++--
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
 diff --git a/dm/games/settings.tsv b/dm/games/settings.tsv
 index 0057d50..0000000 100644
@@ -51,7 +51,7 @@ index 18951a1..0000000 100644
 +    if (controller && !(p == 0 && rumble_output == 1)) {
          GCDeviceHaptics *h = controller.haptics;
          NSSet *localities = h.supportedLocalities;
-@@ -365,5 +367,6 @@ static void configure(int p, GCController *controller) {
+@@ -365,5 +367,5 @@ static void configure(int p, GCController *controller) {
      }
  #if TARGET_OS_IPHONE
 -    else if (!p && phoneSupported) {
