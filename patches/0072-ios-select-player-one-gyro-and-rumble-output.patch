@@ -45,8 +45,7 @@ index 18951a1..0000000 100644
  #if TARGET_OS_IPHONE
  static BOOL phoneSupported;
  #endif
-@@ -71,5 +73,7 @@
- static float rumble_min;
+@@ -72,4 +74,6 @@
 -static float controller_level(float x) {
 -    x = isfinite(x) ? fmaxf(0, fminf(1, x)) : 0;
 -    return x <= rumble_min ? 0 : (x - rumble_min) / (1 - rumble_min);
