@@ -40,6 +40,9 @@ index 18951a1..0000000 100644
  static NSMutableArray<DmRumbleChannel *> *channels[DM_PLAYERS];
  static GCController *controllers[DM_PLAYERS];
 +static int rumble_output = -1;   // player one: -1 automatic, 0 controller only, 1 phone only
++static BOOL didLogApply;
++static BOOL didLogPhoneRequest;
++static BOOL didLogPhoneOutput;
  #if TARGET_OS_IPHONE
  static BOOL phoneSupported;
  #endif
