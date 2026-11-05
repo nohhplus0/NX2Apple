@@ -44,9 +44,9 @@ index 18951a1..0000000 100644
  static BOOL phoneSupported;
  #endif
 @@ -331,5 +333,6 @@ static void configure(int p, GCController *controller) {
-+    fprintf(stderr, "[RED] haptics: configure player=%d controller=%s output=%d\n", p + 1, controller ? "connected" : "none", rumble_output);
      if (controller && ds4_route(p, controller)) { dm_haptics_route(p, 1); return; }   // the report first, as SDL drives it
  #endif
++    fprintf(stderr, "[RED] haptics: configure player=%d controller=%s output=%d\n", p + 1, controller ? "connected" : "none", rumble_output);
 -    if (controller) {
 +    if (controller && !(p == 0 && rumble_output == 1)) {
          GCDeviceHaptics *h = controller.haptics;
