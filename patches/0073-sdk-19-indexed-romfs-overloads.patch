@@ -7,14 +7,14 @@ Reason: Handle SDK 19 MountRom and QueryMountRomCacheSize overloads that include
 Issue: LNPANDY/NX2Apple#214
 
 ---
- dm/host/hle_fs.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ dm/host/hle_fs.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
 diff --git a/dm/host/hle_fs.c b/dm/host/hle_fs.c
 index 114e39964587feae8a2497c8b2aa7a2cd6c60e03..d174cb1fc2470eb8ffe7d128d5a6c7db4292873e 100644
 --- a/dm/host/hle_fs.c
 +++ b/dm/host/hle_fs.c
-@@ -1040,4 +1040,21 @@
+@@ -1040,4 +1040,23 @@
  
  // ---------- Overloads from newer SDKs (SDK 16: MountRom without a cache, ReadFile without the bytes-read output / with read options, directory entry count) ----------
  HLE_FORCE("_ZN2nn2fs8MountRomEPKc", "fsp-srv; rom → host RomFS directory (overload without the cache arguments)", Result, h_fs_MountRom1, const char *name) { return h_fs_MountRom(name, NULL, 0); }
