@@ -12,11 +12,9 @@ Issue: user-requested customization (no public issue)
  1 file changed, 1 insertion(+)
 
 diff --git a/dm/ios/Sources/DmGamepad.m b/dm/ios/Sources/DmGamepad.m
-index 0000000..1111111 100644
+index a076196..0000000 100644
 --- a/dm/ios/Sources/DmGamepad.m
 +++ b/dm/ios/Sources/DmGamepad.m
-@@ -477,7 +477,7 @@
+@@ -1,1 +1,1 @@
 -    dispatch_async(dispatch_get_main_queue(), ^{ self->_padOff = any; self->_controls.hidden = any; [self reset]; });   // the touch gamepad hides while any controller is in use
 +    dispatch_async(dispatch_get_main_queue(), ^{ self->_padOff = any; self->_controls.hidden = any; self->_menu.hidden = any; [self reset]; });   // the touch gamepad and menu button hide while any controller is in use
- }
- @end
