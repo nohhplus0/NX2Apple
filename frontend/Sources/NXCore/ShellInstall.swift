@@ -186,7 +186,10 @@ package enum ShellInstall {
     // ---- 4: the project ----
 
     package static func projectCommand(repo: String) -> [String] {
-        ["/bin/bash", repo + "/dm/ios/tools/build_shell.sh", "--prepare-xcode"]
+        // A source checkout keeps the pinned and patched engine in <repo>/engine, not at <repo>/.
+        // The shell build script is part of that engine patch series (0050), while frontend-ios
+        // remains beside the checkout and is located separately by shellPackage(resources:repo:).
+        ["/bin/bash", EngineLayout.root(repo) + "/dm/ios/tools/build_shell.sh", "--prepare-xcode"]
     }
 
     /// The `frontend-ios` Swift package the shell project links (build_shell.sh's DM_SHELL_PACKAGE). The script defaults to
