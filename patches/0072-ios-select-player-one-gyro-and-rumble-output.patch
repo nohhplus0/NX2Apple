@@ -46,18 +46,18 @@ index 18951a1..0000000 100644
  #if TARGET_OS_IPHONE
  static BOOL phoneSupported;
  #endif
-@@ -141,2 +144,3 @@ - (BOOL)startEngine {
+@@ -140,2 +144,3 @@ - (BOOL)startEngine {
      if (![self.engine startAndReturnError:&error]) { [self engineFailed:error stage:"start engine"]; return NO; }
 +    fprintf(stderr, "[RED] haptics: %s engine started\n", self.target.UTF8String);
      return YES;
-@@ -163,2 +167,6 @@ - (void)apply:(dm_haptic_level)level {
+@@ -162,2 +167,6 @@ - (void)apply:(dm_haptic_level)level {
      self.level = level;
 +    if ([self.target isEqualToString:@"phone"] && !didLogPhoneRequest) {
 +        didLogPhoneRequest = YES;
 +        fprintf(stderr, "[RED] haptics: phone apply request intensity=%.3f\n", level.intensity);
 +    }
      if (!self.pattern) {
-@@ -213,4 +220,8 @@ - (void)apply:(dm_haptic_level)level {
+@@ -212,4 +220,8 @@ - (void)apply:(dm_haptic_level)level {
      if (![self.pattern sendParameters:parameters atTime:CHHapticTimeImmediate error:&error]) {
          [self failed:error stage:"send parameters"]; return;
      }
@@ -66,14 +66,14 @@ index 18951a1..0000000 100644
 +        fprintf(stderr, "[RED] haptics: phone send parameters succeeded intensity=%.3f\n", level.intensity);
 +    }
      self.failures = 0;
-@@ -305,2 +316,6 @@ static void apply(dm_haptic_state s) {
+@@ -304,2 +316,6 @@ static void apply(dm_haptic_state s) {
          if (s.epoch != dm_haptics_epoch(s.player)) return;
 +        if (!didLogApply) {
 +            didLogApply = YES;
 +            fprintf(stderr, "[RED] haptics: first apply player=%d channels=%lu\n", s.player + 1, (unsigned long)channels[s.player].count);
 +        }
          NSArray<DmRumbleChannel *> *out = channels[s.player];
-@@ -328,2 +343,3 @@ static void configure(int p, GCController *controller) {
+@@ -327,2 +343,3 @@ static void configure(int p, GCController *controller) {
      for (DmRumbleChannel *c in channels[p]) [c stop];
      channels[p] = [NSMutableArray new];
 +    fprintf(stderr, "[RED] haptics: configure player=%d controller=%s rumble_output=%d\n", p + 1, controller ? "connected" : "none", rumble_output);
@@ -91,13 +91,13 @@ index 18951a1..0000000 100644
 +    else if (!p && phoneSupported && (rumble_output == 1 || (!controller && rumble_output == -1))) {
          // Do not initialize the phone's engine before the game's audio session is active.
          add_engine(p, -1, @"phone", ^CHHapticEngine *(NSError **e) { return [[CHHapticEngine alloc] initWithAudioSession:AVAudioSession.sharedInstance error:e]; });
-@@ -369,4 +385,5 @@ static void configure(int p, GCController *controller) {
+@@ -368,4 +385,5 @@ static void configure(int p, GCController *controller) {
      else if (!p && phoneSupported && (rumble_output == 1 || (!controller && rumble_output == -1))) {
          // Do not initialize the phone's engine before the game's audio session is active.
          add_engine(p, -1, @"phone", ^CHHapticEngine *(NSError **e) { return [[CHHapticEngine alloc] initWithAudioSession:AVAudioSession.sharedInstance error:e]; });
 +        fprintf(stderr, "[RED] haptics: phone channel registered\n");
      }
-@@ -374,1 +391,2 @@ static void configure(int p, GCController *controller) {
+@@ -373,1 +391,2 @@ static void configure(int p, GCController *controller) {
      dm_haptics_route(p, channels[p].count != 0);
 +    fprintf(stderr, "[RED] haptics: route player=%d enabled=%d channels=%lu\n", p + 1, channels[p].count != 0, (unsigned long)channels[p].count);
 @@ -401,4 +403,8 @@ void dm_haptics_apple_init(void) {
@@ -109,7 +109,7 @@ index 18951a1..0000000 100644
 +        else rumble_output = -1;
          e = getenv("DM_RUMBLE");
          dm_haptics_init(apply, !e || atoi(e) != 0);
-@@ -412,3 +430,4 @@ void dm_haptics_apple_init(void) {
+@@ -411,3 +430,4 @@ void dm_haptics_apple_init(void) {
          phoneSupported = CHHapticEngine.capabilitiesForHardware.supportsHaptics;
 +        fprintf(stderr, "[RED] haptics: phoneSupported=%d rumble_output=%d\n", phoneSupported, rumble_output);
  #endif
