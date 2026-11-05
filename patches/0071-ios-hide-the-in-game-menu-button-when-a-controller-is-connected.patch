@@ -12,7 +12,7 @@ Issue: user-requested customization (no public issue)
  1 file changed, 1 insertion(+)
 
 diff --git a/dm/ios/Sources/DmGamepad.m b/dm/ios/Sources/DmGamepad.m
-index a076196..0000000 100644
+index a076196..f4e9aa3 100644
 --- a/dm/ios/Sources/DmGamepad.m
 +++ b/dm/ios/Sources/DmGamepad.m
 @@ -612,1 +612,1 @@
