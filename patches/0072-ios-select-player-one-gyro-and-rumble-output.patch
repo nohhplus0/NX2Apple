@@ -17,7 +17,7 @@ diff --git a/dm/games/settings.tsv b/dm/games/settings.tsv
 index 0057d50..0000000 100644
 --- a/dm/games/settings.tsv
 +++ b/dm/games/settings.tsv
-@@ -26,6 +26,8 @@ DM_SHOW_FPS	toggle	-	build:DM_SHOW_FPS	platform:ios	Game	Frame-rate counter
+@@ -26,5 +26,7 @@ DM_SHOW_FPS	toggle	-	build:DM_SHOW_FPS	platform:ios	Game	Frame-rate counter
  DM_TOUCH_HAPTICS	toggle	-	1	platform:ios	Controls	Touch feedback
 +DM_PHONE_MOTION	choice	auto=Automatic,1=Phone,0=Controller	auto	platform:ios	Controls	Gyro input
  DM_RUMBLE	toggle	-	1	always	Controls	Game rumble		level=basic
@@ -29,21 +29,21 @@ diff --git a/dm/host/haptics_apple.m b/dm/host/haptics_apple.m
 index 18951a1..0000000 100644
 --- a/dm/host/haptics_apple.m
 +++ b/dm/host/haptics_apple.m
-@@ -13,4 +13,5 @@
+@@ -13,5 +13,6 @@
  #endif
  #include <math.h>
  #include <pthread.h>
 +#include <string.h>
  #include <time.h>
  
-@@ -38,6 +39,7 @@ static dispatch_queue_t queue;
+@@ -38,5 +39,6 @@ static dispatch_queue_t queue;
  static NSMutableArray<DmRumbleChannel *> *channels[DM_PLAYERS];
  static GCController *controllers[DM_PLAYERS];
 +static int rumble_output = -1;   // player one: -1 automatic, 0 controller only, 1 phone only
  #if TARGET_OS_IPHONE
  static BOOL phoneSupported;
  #endif
-@@ -331,4 +333,4 @@ static void configure(int p, GCController *controller) {
+@@ -331,5 +333,5 @@ static void configure(int p, GCController *controller) {
      if (controller && ds4_route(p, controller)) { dm_haptics_route(p, 1); return; }   // the report first, as SDL drives it
  #endif
 -    if (controller) {
