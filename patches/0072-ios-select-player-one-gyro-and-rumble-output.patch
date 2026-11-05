@@ -31,66 +31,89 @@ diff --git a/dm/host/haptics_apple.m b/dm/host/haptics_apple.m
 index 18951a1..0000000 100644
 --- a/dm/host/haptics_apple.m
 +++ b/dm/host/haptics_apple.m
-@@ -12,5 +12,6 @@
+@@ -12,6 +12,7 @@
  #endif
  #include <math.h>
  #include <pthread.h>
 +#include <string.h>
  #include <time.h>
  
-@@ -39,5 +40,6 @@ static dispatch_queue_t queue;
+ @interface DmRumbleChannel : NSObject
+@@ -38,6 +39,7 @@
+ static dispatch_queue_t queue;
  static NSMutableArray<DmRumbleChannel *> *channels[DM_PLAYERS];
  static GCController *controllers[DM_PLAYERS];
 +static int rumble_output = -1;   // player one: -1 automatic, 0 controller only, 1 phone only
  #if TARGET_OS_IPHONE
  static BOOL phoneSupported;
  #endif
-@@ -72,4 +74,6 @@
--static float controller_level(float x) {
--    x = isfinite(x) ? fmaxf(0, fminf(1, x)) : 0;
--    return x <= rumble_min ? 0 : (x - rumble_min) / (1 - rumble_min);
--}
+@@ -69,8 +71,10 @@
+ // low band at 0.1-0.4 all race long: 0.45 leaves crashes and drifts). The mapping stays linear by default: the opposite need, low levels that
+ // rotating motors do not render at all (Breath of the Wild's charged attack on an Xbox controller), is open (docs/reference/services.md)
+ static float rumble_min;
 +static float rumble_curve = 1;
 +static float rumble_level(float x) {
-+    x = isfinite(x) ? fmaxf(0, fminf(1, x)) : 0;
+-static float controller_level(float x) {
+     x = isfinite(x) ? fmaxf(0, fminf(1, x)) : 0;
 +    x = fminf(1, powf(x, rumble_curve) * gain);
-+    return x <= rumble_min ? 0 : (x - rumble_min) / (1 - rumble_min);
-+}
-@@ -161,2 +165,1 @@
+     return x <= rumble_min ? 0 : (x - rumble_min) / (1 - rumble_min);
+ }
+ static void report(NSError *e, NSString *target, const char *stage) {
+@@ -159,7 +163,6 @@
+     return YES;
+ }
  - (void)apply:(dm_haptic_level)level {
 -    if ([self.target hasPrefix:@"controller"]) level.intensity = controller_level(level.intensity);
-@@ -256,2 +259,2 @@
--    o->motor[0] = (uint8_t)lrintf(controller_level((0.85f * l->amplitude_low + 0.15f * r->amplitude_low) * gain) * 255);
--    o->motor[1] = (uint8_t)lrintf(controller_level((0.15f * l->amplitude_high + 0.85f * r->amplitude_high) * gain) * 255);
+     uint64_t silence = ++self.silenceGeneration;
+     NSError *error = nil;
+     self.level = level;
+@@ -253,8 +256,8 @@
+     ds4_out *o = &ds4[s.player];
+     if (!o->dev) return;
+     const dm_vibration *l = &s.motor[0], *r = &s.motor[1];
 +    o->motor[0] = (uint8_t)lrintf(rumble_level(0.85f * l->amplitude_low + 0.15f * r->amplitude_low) * 255);
 +    o->motor[1] = (uint8_t)lrintf(rumble_level(0.15f * l->amplitude_high + 0.85f * r->amplitude_high) * 255);
-@@ -313,2 +316,3 @@
--            dm_haptic_level level = m >= 0 ? dm_haptics_level(&s.motor[m], 1, gain) : dm_haptics_level(s.motor, 2, gain);
--            [out[i] apply:level];
+-    o->motor[0] = (uint8_t)lrintf(controller_level((0.85f * l->amplitude_low + 0.15f * r->amplitude_low) * gain) * 255);
+-    o->motor[1] = (uint8_t)lrintf(controller_level((0.15f * l->amplitude_high + 0.85f * r->amplitude_high) * gain) * 255);
+     if (o->motor[0] == o->sent[0] && o->motor[1] == o->sent[1]) return;
+     ds4_send(s.player);
+ }
+@@ -310,7 +313,8 @@
+         for (NSUInteger i = 0; i < out.count; i++) {
+             if (s.epoch != dm_haptics_epoch(s.player)) break;   // a failed channel may replace this route
+             int m = out[i].motor;
 +            dm_haptic_level level = m >= 0 ? dm_haptics_level(&s.motor[m], 1, 1) : dm_haptics_level(s.motor, 2, 1);
 +            level.intensity = rumble_level(level.intensity);
-+            [out[i] apply:level];
-@@ -331,5 +335,5 @@ static void configure(int p, GCController *controller) {
+-            dm_haptic_level level = m >= 0 ? dm_haptics_level(&s.motor[m], 1, gain) : dm_haptics_level(s.motor, 2, gain);
+             [out[i] apply:level];
+         }
+     } });
+@@ -330,7 +334,7 @@
+     ds4_release(p);
      if (controller && ds4_route(p, controller)) { dm_haptics_route(p, 1); return; }   // the report first, as SDL drives it
  #endif
--    if (controller) {
 +    if (controller && !(p == 0 && rumble_output == 1)) {
+-    if (controller) {
          GCDeviceHaptics *h = controller.haptics;
          NSSet *localities = h.supportedLocalities;
-@@ -365,5 +369,5 @@ static void configure(int p, GCController *controller) {
+         if ([localities containsObject:GCHapticsLocalityLeftHandle] && [localities containsObject:GCHapticsLocalityRightHandle]) {
+@@ -364,7 +368,7 @@
+                 controller.vendorName.UTF8String ?: "unknown", [[localities.allObjects sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "].UTF8String ?: "none", (unsigned long)channels[p].count);
      }
  #if TARGET_OS_IPHONE
--    else if (!p && phoneSupported) {
 +    else if (!p && phoneSupported && (rumble_output == 1 || (!controller && rumble_output == -1))) {
+-    else if (!p && phoneSupported) {
          // Do not initialize the phone's engine before the game's audio session is active.
          add_engine(p, -1, @"phone", ^CHHapticEngine *(NSError **e) { return [[CHHapticEngine alloc] initWithAudioSession:AVAudioSession.sharedInstance error:e]; });
-@@ -400,7 +404,13 @@ void dm_haptics_apple_init(void) {
+     }
+@@ -397,9 +401,15 @@
+         queue = dispatch_queue_create("dm.rumble", DISPATCH_QUEUE_SERIAL);
          dispatch_queue_set_specific(queue, &queue, &queue, NULL);
          const char *e = getenv("DM_RUMBLE_GAIN");
--        if (e) { float v = strtof(e, NULL); if (isfinite(v)) gain = fmaxf(0, fminf(3, v)); }
 +        if (e) { float v = strtof(e, NULL); if (isfinite(v)) gain = fmaxf(0.1f, fminf(10, v)); }
 +        e = getenv("DM_RUMBLE_CURVE");
 +        if (e) { float v = strtof(e, NULL); if (isfinite(v)) rumble_curve = fmaxf(0.1f, fminf(2, v)); }
+-        if (e) { float v = strtof(e, NULL); if (isfinite(v)) gain = fmaxf(0, fminf(3, v)); }
          e = getenv("DM_RUMBLE_MIN");
          if (e) { float v = strtof(e, NULL); if (isfinite(v)) rumble_min = fmaxf(0, fminf(0.9f, v)); }
 +        e = getenv("DM_RUMBLE_OUTPUT");
@@ -99,3 +122,4 @@ index 18951a1..0000000 100644
 +        else rumble_output = -1;
          e = getenv("DM_RUMBLE");
          dm_haptics_init(apply, !e || atoi(e) != 0);
+ #if TARGET_OS_IPHONE
