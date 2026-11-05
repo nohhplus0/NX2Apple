@@ -16,17 +16,13 @@ diff --git a/dm/host/haptics_apple.m b/dm/host/haptics_apple.m
 index 18951a1..0000000 100644
 --- a/dm/host/haptics_apple.m
 +++ b/dm/host/haptics_apple.m
-@@ -39,7 +39,10 @@
+@@ -38,3 +38,6 @@
  static dispatch_queue_t queue;
  static NSMutableArray<DmRumbleChannel *> *channels[DM_PLAYERS];
  static GCController *controllers[DM_PLAYERS];
- static int rumble_output = -1;   // player one: -1 automatic, 0 controller only, 1 phone only
 +static BOOL didLogApply;
 +static BOOL didLogPhoneRequest;
 +static BOOL didLogPhoneOutput;
- #if TARGET_OS_IPHONE
- static BOOL phoneSupported;
- #endif
 @@ -141,2 +144,3 @@ - (BOOL)startEngine {
      if (![self.engine startAndReturnError:&error]) { [self engineFailed:error stage:"start engine"]; return NO; }
 +    fprintf(stderr, "[RED] haptics: %s engine started\n", self.target.UTF8String);
