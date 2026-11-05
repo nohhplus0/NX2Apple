@@ -4,7 +4,7 @@ Subject: [PATCH] fs: support SDK 19 indexed RomFS overloads
 
 Upstream-Status: pending
 Reason: Handle SDK 19 MountRom and QueryMountRomCacheSize overloads that include a program index, routing them through the host RomFS implementation.
-Issue: LNPANDY/NX2Apple#TODO
+Issue: LNPANDY/NX2Apple#214
 
 ---
  dm/host/hle_fs.c | 15 +++++++++++++++
@@ -14,24 +14,9 @@ diff --git a/dm/host/hle_fs.c b/dm/host/hle_fs.c
 index a90fb7a3204833a8f8c6fc6cd74f610a696d5e4b..43090754f5bf72cf188774d37540bc41ba6829b8 100644
 --- a/dm/host/hle_fs.c
 +++ b/dm/host/hle_fs.c
-@@ -1042,1 +1042,16 @@
+@@ -1040,3 +1040,18 @@
+ 
+ // ---------- Overloads from newer SDKs (SDK 16: MountRom without a cache, ReadFile without the bytes-read output / with read options, directory entry count) ----------
++
  HLE_FORCE("_ZN2nn2fs8MountRomEPKc", "fsp-srv; rom → host RomFS directory (overload without the cache arguments)", Result, h_fs_MountRom1, const char *name) { return h_fs_MountRom(name, NULL, 0); }
-+// SDK 19: MountRom with program index
-+HLE_FORCE("_ZN2nn2fs8MountRomEPKciPvm",
-+          "fsp-srv; rom → host RomFS directory (SDK 19 overload with an index)",
-+          Result, h_fs_MountRomIdx,
-+          const char *name, int idx, void *cache, size_t sz) {
-+    if (idx)
-+        LOG("[RED] fs::MountRom(%s, program index %d): the host has one RomFS, this program's", name, idx);
-+
-+    return h_fs_MountRom(name, cache, sz);
-+}
-+
-+// SDK 19: QueryMountRomCacheSize with program index
-+HLE_FORCE("_ZN2nn2fs22QueryMountRomCacheSizeEPmi",
-+          "fsp-srv; the cache gets only the minimum size (SDK 19 overload with an index)",
-+          Result, h_fs_QueryRomCacheIdx,
-+          size_t *out, int idx) {
-+    (void)idx;
-+    return h_fs_QueryRomCache(out);
-+}
+
