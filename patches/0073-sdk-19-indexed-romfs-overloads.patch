@@ -1,6 +1,5 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ChatGPT <patches@localhost>
-Date: Fri, 6 Nov 2026 00:00:00 +0900
 Subject: [PATCH] fs: support SDK 19 indexed RomFS overloads
 
 Upstream-Status: pending
@@ -12,10 +11,10 @@ Issue: LNPANDY/NX2Apple#TODO
  1 file changed, 15 insertions(+)
 
 diff --git a/dm/host/hle_fs.c b/dm/host/hle_fs.c
-index 0000000..0000000 100644
 --- a/dm/host/hle_fs.c
 +++ b/dm/host/hle_fs.c
-@@ -1042,1 +1042,16 @@ HLE_FORCE("_ZN2nn2fs8MountRomEPKc", "fsp-srv; rom → host RomFS directory (overload without the cache arguments)", Result, h_fs_MountRom1, const char *name) { return h_fs_MountRom(name, NULL, 0); }
+@@ -1042,1 +1042,16 @@
+ HLE_FORCE("_ZN2nn2fs8MountRomEPKc", "fsp-srv; rom → host RomFS directory (overload without the cache arguments)", Result, h_fs_MountRom1, const char *name) { return h_fs_MountRom(name, NULL, 0); }
 +// SDK 19: MountRom with program index
 +HLE_FORCE("_ZN2nn2fs8MountRomEPKciPvm",
 +          "fsp-srv; rom → host RomFS directory (SDK 19 overload with an index)",
@@ -35,5 +34,3 @@ index 0000000..0000000 100644
 +    (void)idx;
 +    return h_fs_QueryRomCache(out);
 +}
--- 
-2.45.2
