@@ -89,7 +89,7 @@ index 18951a1..0000000 100644
 +    else if (!p && phoneSupported && (rumble_output == 1 || (!controller && rumble_output == -1))) {
          // Do not initialize the phone's engine before the game's audio session is active.
          add_engine(p, -1, @"phone", ^CHHapticEngine *(NSError **e) { return [[CHHapticEngine alloc] initWithAudioSession:AVAudioSession.sharedInstance error:e]; });
-@@ -400,8 +404,14 @@ void dm_haptics_apple_init(void) {
+@@ -400,7 +404,13 @@ void dm_haptics_apple_init(void) {
          dispatch_queue_set_specific(queue, &queue, &queue, NULL);
          const char *e = getenv("DM_RUMBLE_GAIN");
 -        if (e) { float v = strtof(e, NULL); if (isfinite(v)) gain = fmaxf(0, fminf(3, v)); }
