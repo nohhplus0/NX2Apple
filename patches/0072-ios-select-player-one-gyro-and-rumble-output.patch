@@ -62,9 +62,8 @@ index 18951a1..0000000 100644
 +    return x <= rumble_min ? 0 : (x - rumble_min) / (1 - rumble_min);
 +}
 @@ -161,2 +165,1 @@
--- (void)apply:(dm_haptic_level)level {
+ - (void)apply:(dm_haptic_level)level {
 -    if ([self.target hasPrefix:@"controller"]) level.intensity = controller_level(level.intensity);
-+- (void)apply:(dm_haptic_level)level {
 @@ -256,2 +259,2 @@
 -    o->motor[0] = (uint8_t)lrintf(controller_level((0.85f * l->amplitude_low + 0.15f * r->amplitude_low) * gain) * 255);
 -    o->motor[1] = (uint8_t)lrintf(controller_level((0.15f * l->amplitude_high + 0.85f * r->amplitude_high) * gain) * 255);
