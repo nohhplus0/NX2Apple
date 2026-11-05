@@ -31,21 +31,27 @@ diff --git a/dm/host/haptics_apple.m b/dm/host/haptics_apple.m
 index 18951a1..0000000 100644
 --- a/dm/host/haptics_apple.m
 +++ b/dm/host/haptics_apple.m
-@@ -13,5 +13,6 @@
+@@ -12,5 +12,6 @@
  #endif
  #include <math.h>
  #include <pthread.h>
 +#include <string.h>
  #include <time.h>
  
-@@ -38,5 +39,6 @@ static dispatch_queue_t queue;
+@@ -39,5 +40,6 @@ static dispatch_queue_t queue;
  static NSMutableArray<DmRumbleChannel *> *channels[DM_PLAYERS];
  static GCController *controllers[DM_PLAYERS];
 +static int rumble_output = -1;   // player one: -1 automatic, 0 controller only, 1 phone only
  #if TARGET_OS_IPHONE
  static BOOL phoneSupported;
  #endif
-@@ -71,5 +73,7 @@
+@@ -65,11 +67,13 @@
+     ] error:error];
+ }
+ // DM_RUMBLE_MIN (0 to 0.9, default 0): controller levels below it stay silent and the rest is stretched over the full range. On a Joy-Con's
+ // resonant actuator a game's quiet texture is felt as texture; on rotating motors it is rumble that never lets up (Mario Kart 8 Deluxe holds its
+ // low band at 0.1-0.4 all race long: 0.45 leaves crashes and drifts). The mapping stays linear by default: the opposite need, low levels that
+ // rotating motors do not render at all (Breath of the Wild's charged attack on an Xbox controller), is open (docs/reference/services.md)
  static float rumble_min;
 -static float controller_level(float x) {
 -    x = isfinite(x) ? fmaxf(0, fminf(1, x)) : 0;
