@@ -13,13 +13,13 @@ Issue: local (GitHub Issues are disabled for this repository)
  1 file changed, 19 insertions(+)
 
 diff --git a/dm/host/haptics_apple.m b/dm/host/haptics_apple.m
-index 18951a1bebf40a9c373a574d2ff1dbaa5f10eaab..0000000000000000000000000000000000000000 100644
+index 5a7cd7482f6ed23e5ca8256b69cb2c64db337af7..0000000000000000000000000000000000000000 100644
 --- a/dm/host/haptics_apple.m
 +++ b/dm/host/haptics_apple.m
-@@ -38,3 +38,6 @@
- static dispatch_queue_t queue;
+@@ -39,4 +39,7 @@
  static NSMutableArray<DmRumbleChannel *> *channels[DM_PLAYERS];
  static GCController *controllers[DM_PLAYERS];
+ static int rumble_output = -1;   // player one: -1 automatic, 0 controller only, 1 phone only
 +static BOOL didLogApply;
 +static BOOL didLogPhoneRequest;
 +static BOOL didLogPhoneOutput;
