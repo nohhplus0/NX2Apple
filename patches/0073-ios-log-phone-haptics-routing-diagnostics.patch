@@ -13,7 +13,6 @@ Issue: local (GitHub Issues are disabled for this repository)
  1 file changed, 19 insertions(+)
 
 diff --git a/dm/host/haptics_apple.m b/dm/host/haptics_apple.m
-index 5a7cd7482f6ed23e5ca8256b69cb2c64db337af7..0000000000000000000000000000000000000000 100644
 --- a/dm/host/haptics_apple.m
 +++ b/dm/host/haptics_apple.m
 @@ -39,3 +39,6 @@
