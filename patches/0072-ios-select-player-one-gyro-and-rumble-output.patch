@@ -6,6 +6,8 @@ Subject: [PATCH] ios: choose player one's gyro and rumble output
 Upstream-Status: pending
 Reason: Let player one explicitly use the phone or its physical controller for motion and vibration, while keeping automatic routing as the default.
 
+Issue: local (GitHub Issues are disabled for this repository)
+
 ---
  dm/games/settings.tsv  | 2 ++
  dm/host/haptics_apple.m | 10 ++++++++--

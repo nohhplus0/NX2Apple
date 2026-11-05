@@ -6,6 +6,8 @@ Subject: [PATCH] ios: hide the in-game menu button with a physical controller
 Upstream-Status: fork-only
 Reason: Keep the iOS game view free of touch UI while a physical controller is connected, including the gear menu button.
 
+Issue: local (GitHub Issues are disabled for this repository)
+
 ---
  dm/ios/Sources/DmGamepad.m | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
