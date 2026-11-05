@@ -5,16 +5,14 @@ Subject: [PATCH] ios: hide the in-game menu button with a physical controller
 
 Upstream-Status: fork-only
 Reason: Keep the iOS game view free of touch UI while a physical controller is connected, including the gear menu button.
-Issue: user-requested customization (no public issue)
 
 ---
- dm/ios/Sources/DmGamepad.m | 1 +
- 1 file changed, 1 insertion(+)
+ dm/ios/Sources/DmGamepad.m | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/dm/ios/Sources/DmGamepad.m b/dm/ios/Sources/DmGamepad.m
-index a076196..f4e9aa3 100644
 --- a/dm/ios/Sources/DmGamepad.m
 +++ b/dm/ios/Sources/DmGamepad.m
-@@ -612,1 +612,1 @@
--    dispatch_async(dispatch_get_main_queue(), ^{ self->_padOff = any; self->_controls.hidden = any; [self reset]; });   // the touch gamepad hides while any controller is in use
-+    dispatch_async(dispatch_get_main_queue(), ^{ self->_padOff = any; self->_controls.hidden = any; self->_menu.hidden = any; [self reset]; });   // the touch gamepad and menu button hide while any controller is in use
+@@ -646,1 +646,1 @@ - (void)padsChanged:(NSNotification *)note {
+-    dispatch_async(dispatch_get_main_queue(), ^{ self->_padOff = any; self->_controls.hidden = any; [self reset]; front_ios_quit_controllers(); });   // the touch gamepad hides while any controller is in use
++    dispatch_async(dispatch_get_main_queue(), ^{ self->_padOff = any; self->_controls.hidden = any; self->_menu.hidden = any; [self reset]; front_ios_quit_controllers(); });   // the touch gamepad and menu button hide while any controller is in use
